@@ -1,7 +1,10 @@
 
 
+import 'dart:convert';
+
 import 'package:countries_flag_api/models/country.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 
 class CountryListScreen extends StatefulWidget {
@@ -25,17 +28,28 @@ class _CountryListScreenState extends State<CountryListScreen> {
 
     http.Response response = await http.get(Uri.parse(url));
 
-    print(response.body);
+    if( response.statusCode == 200){
+
+      var jsonResponse = jsonDecode(response.body);
+      var countriesJsonArray = jsonResponse['data'];
+
+      for( var jsonCountry in countriesJsonArray){
+
+        Country country = Country.fromJson(jsonCountry);
+        countries.add(country);
+      }
+
+      await Future.delayed(Duration(seconds: 3));
+      return countries;
+
+    }else{
+
+    }
 
     return countries;
 
   }
 
-  @override
-  void initState() {
-    getAllCountries();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +59,23 @@ class _CountryListScreenState extends State<CountryListScreen> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
+
+      body: FutureBuilder<List<Country>>(
+          future: getAllCountries(),
+          builder: (BuildContext context, AsyncSnapshot snapshot){
+
+            if( snapshot.hasData){
+              List<Country> countries = snapshot.data;
+
+              return Center(child: Text(countries.length.toString()));
+
+
+            }else{
+
+              return Center(child: SpinKitDualRing(color: Colors.red),);
+            }
+
+          }),
     );
   }
 }
