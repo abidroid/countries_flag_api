@@ -3,8 +3,10 @@
 import 'dart:convert';
 
 import 'package:countries_flag_api/models/country.dart';
+import 'package:countries_flag_api/screens/country_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 
 class CountryListScreen extends StatefulWidget {
@@ -67,7 +69,45 @@ class _CountryListScreenState extends State<CountryListScreen> {
             if( snapshot.hasData){
               List<Country> countries = snapshot.data;
 
-              return Center(child: Text(countries.length.toString()));
+             return ListView.builder(
+                 itemCount: countries.length,
+                 itemBuilder: (BuildContext context, int index){
+
+                   return InkWell(
+                     onTap: (){
+
+                       Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                         return CountryDetailScreen(country: countries[index]);
+                       }));
+                     },
+                     child: Card(
+                       color: Colors.yellow,
+                       child: Padding(
+                         padding: const EdgeInsets.all(16.0),
+                         child: Row(
+                           spacing: 16,
+                           children: [
+                             // flag display
+                             SizedBox(
+                               width: 100,
+                               height: 80,
+                               child: ClipRRect(
+                                 borderRadius: BorderRadius.circular(8),
+                                 child: SvgPicture.network(countries[index].flag!,
+                                  fit: BoxFit.cover,
+                                 ),
+                               ),
+                             ),
+                             Expanded(
+                               child: Text(countries[index].name!,
+                                 style: TextStyle(fontSize: 18),),
+                             ),
+                           ],
+                         ),
+                       ),
+                     ),
+                   );
+             });
 
 
             }else{
